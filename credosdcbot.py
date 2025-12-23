@@ -4,10 +4,28 @@ import asyncio
 import random
 import aiohttp
 import datetime
-import requests # Token çekmek için eklendi
+import requests
+import os
+from flask import Flask
+from threading import Thread
+
+# --- RENDER İÇİN WEB SUNUCUSU ---
+app = Flask('')
+
+@app.route('/')
+def home():
+    return "Credos Bot is Alive!"
+
+def run():
+    # Render'ın portunu kullan, yoksa 8080
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host='0.0.0.0', port=port)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
 
 # --- Settings ---
-# Google Apps Script URL'n
 TOKEN_URL = "https://script.google.com/macros/s/AKfycbwdEadsb5f6UIzd2qrQ2txinQfXPiDooJ_zfx7LdT7Nw6tj2T2RgAgAHN7zOS4XoZgk/exec"
 
 def get_token():
@@ -272,6 +290,7 @@ async def on_command_error(ctx, error):
 
 if __name__ == "__main__":
     if TOKEN:
-        bot.run(TOKEN)
+        keep_alive() # Render için web sunucusunu başlatır
+        bot.run(TOKEN) # Botu başlatır
     else:
-        print("❌ Token alınamadı, URL'yi veya Google Script'i kontrol et.")
+        print("❌ Token alınamadı!")
